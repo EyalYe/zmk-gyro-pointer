@@ -44,6 +44,9 @@
         sensor = <&mpu6050>;
         poll-interval-ms = <10>;
         scale-div = <20>;
+        // Mouse only enabled when on layer 1: the driver stops polling
+        // the gyro entirely on other layers (also saves power)
+        layers = <1>;
     };
 
     gyro_listener {
@@ -51,12 +54,6 @@
         device = <&gyro_input>;
         //optional input transform to swap x/y axes and invert x/y axes
         //input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_Y_INVERT | INPUT_TRANSFORM_X_INVERT)>;
-        // Mouse only enabled when on layer 1
-        input-processors = <&zip_xy_scaler 0 1>;
-
-        enable {
-            layers = <1>;
-            input-processors = <&zip_xy_scaler 1 3>;
-        };
+        input-processors = <&zip_xy_scaler 1 3>;
     };
 };

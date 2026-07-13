@@ -15,6 +15,13 @@ properties:
   scale-div:
     type: int
     default: 1
+  layers:
+    type: array
+    required: false
+    description: |
+      If set, the gyro is only polled while at least one of these layers
+      is active; on all other layers polling stops entirely (saves power
+      and suppresses pointer motion). Omit to poll on every layer.
   swap-xy:
     type: boolean
   invert-x:
