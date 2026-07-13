@@ -38,9 +38,9 @@ Then append `air_mouse` to the shield list of the build you want it on in `build
 
 ```yaml
 include:
-  - board: nice_nano_v2
+  - board: nice_nano//zmk
     shield: corne_left air_mouse
-  - board: seeeduino_xiao_ble
+  - board: xiao_ble//zmk
     shield: my_board air_mouse
 ```
 
@@ -51,7 +51,7 @@ That's it — the driver enables itself automatically when the shield's devicetr
 If you build locally instead of with GitHub Actions, point ZMK at the module directly:
 
 ```sh
-west build -b nice_nano_v2 -- \
+west build -b nice_nano//zmk -- \
   -DSHIELD="corne_left air_mouse" \
   -DZMK_EXTRA_MODULES=/path/to/zmk-gyro-pointer
 ```
