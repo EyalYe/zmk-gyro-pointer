@@ -12,9 +12,15 @@ properties:
   scale-mult:
     type: int
     default: 1
+    description: |
+      Pointer counts per poll = gyro rate (milli-rad/s) * scale-mult / scale-div.
   scale-div:
     type: int
     default: 1
+    description: |
+      See scale-mult. The MPU6050's default +-250 deg/s full scale tops out
+      around 4363 milli-rad/s, so e.g. scale-div 200 gives at most ~21
+      counts per poll.
   layers:
     type: array
     required: false

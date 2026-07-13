@@ -9,6 +9,9 @@
 #include <zmk/events/layer_state_changed.h>
 #include <zmk/keymap.h>
 
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(mpu6050_input, CONFIG_ZMK_LOG_LEVEL);
+
 struct cfg {
     const struct device *sensor;
     uint16_t poll_ms;
@@ -22,6 +25,7 @@ struct data {
     const struct device *dev;
     struct k_work_delayable work;
     bool polling;
+    uint32_t polls;
 };
 
 static void poll_work(struct k_work *work) {
@@ -32,22 +36,33 @@ static void poll_work(struct k_work *work) {
 
     if (!d->polling) return;
 
-    if (sensor_sample_fetch(cfg->sensor) == 0 &&
-        sensor_channel_get(cfg->sensor, SENSOR_CHAN_GYRO_XYZ, g) == 0) {
+    int rc = sensor_sample_fetch(cfg->sensor);
+    if (rc == 0) rc = sensor_channel_get(cfg->sensor, SENSOR_CHAN_GYRO_XYZ, g);
 
-        /* yaw (gz) -> X, pitch (gx or gy) -> Y; tune to mounting */
-        int32_t dx = (int32_t)sensor_value_to_milli(&g[2]) * cfg->mult / cfg->div / 1000;
-        int32_t dy = (int32_t)sensor_value_to_milli(&g[0]) * cfg->mult / cfg->div / 1000;
+    if (rc == 0) {
+        /* yaw (gz) -> X, pitch (gx or gy) -> Y; tune to mounting.
+           Rates are milli-rad/s; counts per poll = milli * mult / div */
+        int32_t mz = (int32_t)sensor_value_to_milli(&g[2]);
+        int32_t mx = (int32_t)sensor_value_to_milli(&g[0]);
+        int32_t dx = mz * cfg->mult / cfg->div;
+        int32_t dy = mx * cfg->mult / cfg->div;
 
         /* pmw3610-style transforms */
         if (cfg->swap_xy) { int32_t t = dx; dx = dy; dy = t; }
         if (cfg->invert_x) dx = -dx;
         if (cfg->invert_y) dy = -dy;
 
+        /* one debug line per second at the default 10ms poll */
+        if (d->polls++ % 100 == 0) {
+            LOG_DBG("gyro mrad/s x=%d z=%d -> dx=%d dy=%d", mx, mz, dx, dy);
+        }
+
         if (dx || dy) {
             input_report_rel(d->dev, INPUT_REL_X, dx, false, K_NO_WAIT);
             input_report_rel(d->dev, INPUT_REL_Y, dy, true, K_NO_WAIT);
         }
+    } else if (d->polls++ % 100 == 0) {
+        LOG_WRN("gyro read failed (%d)", rc);
     }
     k_work_reschedule(&d->work, K_MSEC(cfg->poll_ms));
 }
@@ -67,6 +82,7 @@ static void update_polling(const struct device *dev) {
 
     if (on == d->polling) return;
     d->polling = on;
+    LOG_INF("gyro polling %s", on ? "started" : "stopped");
     if (on) {
         k_work_reschedule(&d->work, K_NO_WAIT);
     } else {
@@ -87,10 +103,15 @@ ZMK_SUBSCRIPTION(mpu6050_input, zmk_layer_state_changed);
 static int init(const struct device *dev) {
     struct data *d = dev->data;
     const struct cfg *cfg = dev->config;
-    if (!device_is_ready(cfg->sensor)) return -ENODEV;
+    if (!device_is_ready(cfg->sensor)) {
+        LOG_ERR("MPU6050 sensor not ready (check wiring/I2C address)");
+        return -ENODEV;
+    }
     d->dev = dev;
     k_work_init_delayable(&d->work, poll_work);
     update_polling(dev);
+    LOG_INF("mpu6050 input up: poll %ums, scale %d/%d, %u gated layers, polling=%d",
+            cfg->poll_ms, cfg->mult, cfg->div, (unsigned)cfg->layers_len, d->polling);
     return 0;
 }
 

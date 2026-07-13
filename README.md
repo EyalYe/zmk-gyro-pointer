@@ -110,7 +110,7 @@ To tune it for your mounting orientation, override the `gyro_input` node from yo
 
 ```dts
 &gyro_input {
-    scale-div = <30>;      // higher = slower cursor
+    scale-div = <300>;     // higher = slower cursor
     layers = <1 2>;        // only move the cursor (and poll the gyro) on these layers
     invert-x;
     swap-xy;
@@ -137,8 +137,8 @@ Devicetree properties on the `zmk,mpu6050-input` node (`gyro_input`):
 |---|---|---|
 | `sensor` | Phandle to the MPU6050 sensor node | (required) |
 | `poll-interval-ms` | Gyro poll period in milliseconds | `10` |
-| `scale-mult` | Sensitivity multiplier | `1` |
-| `scale-div` | Sensitivity divisor (higher = slower) | `1` (shield sets `20`) |
+| `scale-mult` | Sensitivity multiplier: counts per poll = rate (milli-rad/s) × mult ÷ div | `1` |
+| `scale-div` | Sensitivity divisor (higher = slower) | `1` (shield sets `200`) |
 | `layers` | Only poll the gyro while one of these layers is active; polling stops entirely on other layers (no motion, lower power). Omit to always poll | unset (shield sets `<1>`) |
 | `swap-xy` | Swap the X and Y axes | off |
 | `invert-x` | Invert horizontal movement | off |

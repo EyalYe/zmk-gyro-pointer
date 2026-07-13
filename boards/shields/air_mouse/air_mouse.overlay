@@ -43,7 +43,9 @@
         compatible = "zmk,mpu6050-input";
         sensor = <&mpu6050>;
         poll-interval-ms = <10>;
-        scale-div = <20>;
+        // counts per poll = gyro rate in milli-rad/s * scale-mult / scale-div
+        // (max rate at the default +-250 deg/s full scale is ~4363 mrad/s)
+        scale-div = <200>;
         // Mouse only enabled when on layer 1: the driver stops polling
         // the gyro entirely on other layers (also saves power)
         layers = <1>;
@@ -54,6 +56,5 @@
         device = <&gyro_input>;
         //optional input transform to swap x/y axes and invert x/y axes
         //input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_Y_INVERT | INPUT_TRANSFORM_X_INVERT)>;
-        input-processors = <&zip_xy_scaler 1 3>;
     };
 };
