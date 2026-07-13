@@ -1,3 +1,5 @@
+#include <input/processors.dtsi>
+
 /* Use the SoC i2c0 directly instead of an interconnect label (&pro_micro_i2c /
    &xiao_i2c) so the shield works on both pro-micro and XIAO footprint boards.
    The board dts must provide i2c0 pinctrl (nice_nano and xiao_ble already do). */
@@ -49,5 +51,12 @@
         device = <&gyro_input>;
         //optional input transform to swap x/y axes and invert x/y axes
         //input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_Y_INVERT | INPUT_TRANSFORM_X_INVERT)>;
+        // Mouse only enabled when on layer 1
+        input-processors = <&zip_xy_scaler 0 1>;
+
+        enable {
+            layers = <1>;
+            input-processors = <&zip_xy_scaler 1 3>;
+        };
     };
 };
