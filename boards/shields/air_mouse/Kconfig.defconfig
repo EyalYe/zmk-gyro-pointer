@@ -1,0 +1,15 @@
+if SHIELD_AIR_MOUSE
+
+config I2C
+    default y
+
+config SENSOR
+    default y
+
+config MPU6050
+    default y
+
+config ZMK_POINTING
+    default y
+
+endif

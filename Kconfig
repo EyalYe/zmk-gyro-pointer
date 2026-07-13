@@ -1,0 +1,20 @@
+DT_COMPAT_ZMK_MPU6050_INPUT := zmk,mpu6050-input
+
+config ZMK_MPU6050_INPUT
+    bool "MPU6050 gyro-to-pointer input driver"
+    default $(dt_compat_enabled,$(DT_COMPAT_ZMK_MPU6050_INPUT))
+    depends on INPUT
+    help
+      Polls an MPU6050 gyroscope through the Zephyr sensor API and
+      reports relative pointer motion (air-mouse style).
+
+if ZMK_MPU6050_INPUT
+
+config ZMK_MPU6050_INPUT_INIT_PRIORITY
+    int "MPU6050 input driver init priority"
+    default 95
+    help
+      Must be higher (later) than SENSOR_INIT_PRIORITY so the MPU6050
+      sensor device is ready before this driver starts polling it.
+
+endif # ZMK_MPU6050_INPUT

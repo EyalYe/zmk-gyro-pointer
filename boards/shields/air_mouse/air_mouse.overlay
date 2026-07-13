@@ -1,0 +1,53 @@
+/* Use the SoC i2c0 directly instead of an interconnect label (&pro_micro_i2c /
+   &xiao_i2c) so the shield works on both pro-micro and XIAO footprint boards.
+   The board dts must provide i2c0 pinctrl (nice_nano and xiao_ble already do). */
+&i2c0 {
+    status = "okay";
+
+    /* If the board dts does not configure i2c0, uncomment this (and the
+       &pinctrl block below) and set the pins you wired SDA/SCL to: */
+    //compatible = "nordic,nrf-twi";
+    //pinctrl-0 = <&i2c0_default>;
+    //pinctrl-1 = <&i2c0_sleep>;
+    //pinctrl-names = "default", "sleep";
+
+    mpu6050: mpu6050@68 {
+        compatible = "invensense,mpu6050";
+        reg = <0x68>;
+    };
+};
+
+/* Pin assignments for the commented pinctrl option above (nRF52 example,
+   SDA = P0.17, SCL = P0.20 — adjust to your wiring): */
+//&pinctrl {
+//    i2c0_default: i2c0_default {
+//        group1 {
+//            psels = <NRF_PSEL(TWIM_SDA, 0, 17)>,
+//                    <NRF_PSEL(TWIM_SCL, 0, 20)>;
+//        };
+//    };
+//
+//    i2c0_sleep: i2c0_sleep {
+//        group1 {
+//            psels = <NRF_PSEL(TWIM_SDA, 0, 17)>,
+//                    <NRF_PSEL(TWIM_SCL, 0, 20)>;
+//            low-power-enable;
+//        };
+//    };
+//};
+
+/ {
+    gyro_input: gyro_input {
+        compatible = "zmk,mpu6050-input";
+        sensor = <&mpu6050>;
+        poll-interval-ms = <10>;
+        scale-div = <20>;
+    };
+
+    gyro_listener {
+        compatible = "zmk,input-listener";
+        device = <&gyro_input>;
+        //optional input transform to swap x/y axes and invert x/y axes
+        //input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_Y_INVERT | INPUT_TRANSFORM_X_INVERT)>;
+    };
+};

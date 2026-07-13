@@ -1,0 +1,23 @@
+# dts/bindings/input/zmk,mpu6050-input.yaml
+description: MPU6050 gyro-to-pointer glue
+compatible: "zmk,mpu6050-input"
+
+properties:
+  sensor:
+    type: phandle
+    required: true
+  poll-interval-ms:
+    type: int
+    default: 10
+  scale-mult:
+    type: int
+    default: 1
+  scale-div:
+    type: int
+    default: 1
+  swap-xy:
+    type: boolean
+  invert-x:
+    type: boolean
+  invert-y:
+    type: boolean
