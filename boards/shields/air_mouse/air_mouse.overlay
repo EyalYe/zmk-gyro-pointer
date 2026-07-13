@@ -1,4 +1,5 @@
 #include <input/processors.dtsi>
+#include <dt-bindings/zmk/input_transform.h>
 
 /* Use the SoC i2c0 directly instead of an interconnect label (&pro_micro_i2c /
    &xiao_i2c) so the shield works on both pro-micro and XIAO footprint boards.
@@ -55,6 +56,6 @@
         compatible = "zmk,input-listener";
         device = <&gyro_input>;
         //optional input transform to swap x/y axes and invert x/y axes
-        //input-processors = <&zip_xy_transform (INPUT_TRANSFORM_XY_SWAP | INPUT_TRANSFORM_Y_INVERT | INPUT_TRANSFORM_X_INVERT)>;
+        input-processors = <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>;
     };
 };
