@@ -56,6 +56,6 @@
         compatible = "zmk,input-listener";
         device = <&gyro_input>;
         //optional input transform to swap x/y axes and invert x/y axes
-        input-processors = <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>;
+        //input-processors = <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>;
     };
 };
